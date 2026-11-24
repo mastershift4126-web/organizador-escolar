@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organizador Escolar</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #10131c;
+    color: white;
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+}
+
+.contenedor {
+    background: #1b2030;
+    padding: 25px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 600px;
+}
+
+h1 {
+    color: #80d6ff;
+    text-align: center;
+}
+
+button {
+    background: #2879a8;
+    color: white;
+    border: none;
+    padding: 12px;
+    margin: 5px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+input {
+    padding: 12px;
+    width: 90%;
+    margin: 10px 0;
+}
+
+.panel {
+    margin-top: 20px;
+    padding: 15px;
+    background: #141927;
+    border-radius: 10px;
+}
+
+.oculto {
+    display: none;
+}
+
+#mensaje {
+    color: #80d6ff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<h1>Organizador Escolar</h1>
+<p>Organiza tus tareas fácilmente.</p>
+
+<h3>MENÚ PRINCIPAL</h3>
+
+<button onclick="mostrar('agregar')">1. Agregar tarea</button>
+<button onclick="mostrar('ver')">2. Ver tareas</button>
+<button onclick="mostrar('eliminar')">3. Eliminar tarea</button>
+<button onclick="mostrar('contar')">4. Ver cantidad</button>
+
+<div id="agregar" class="panel oculto">
+    <h3>Agregar tarea</h3>
+    <input id="nuevaTarea" placeholder="Escribe una tarea">
+    <button onclick="agregar()">Guardar</button>
+</div>
+
+<div id="ver" class="panel oculto">
+    <h3>Mis tareas</h3>
+    <ul id="lista"></ul>
+</div>
+
+<div id="eliminar" class="panel oculto">
+    <h3>Eliminar tarea</h3>
+    <input id="borrarTarea" placeholder="Nombre de la tarea">
+    <button onclick="eliminar()">Eliminar</button>
+</div>
+
+<div id="contar" class="panel oculto">
+    <h3>Cantidad de tareas</h3>
+    <p id="cantidad"></p>
+</div>
+
+<p id="mensaje"></p>
+
+</div>
+
+<script>
+
+// Guardar y recuperar tareas
+let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+
+function guardar() {
+    localStorage.setItem("tareas", JSON.stringify(tareas));
+}
+
+// Mostrar opciones del menú
+function mostrar(opcion) {
+    let paneles = document.querySelectorAll(".panel");
+
+    paneles.forEach(function(panel) {
+        panel.classList.add("oculto");
+    });
+
+    document.getElementById(opcion).classList.remove("oculto");
+    document.getElementById("mensaje").textContent = "";
+
+    if (opcion == "ver") {
+        verTareas();
+    }
+
+    if (opcion == "contar") {
+        document.getElementById("cantidad").textContent =
+        "Tienes " + tareas.length + " tareas registradas.";
+    }
+}
+
+// Agregar tarea
+function agregar() {
+    let tarea = document.getElementById("nuevaTarea").value.trim();
+
+    if (tarea == "") {
+        mensaje("Escribe una tarea.");
+    }
+
+    else if (tareas.some(t => t.toLowerCase() == tarea.toLowerCase())) {
+        mensaje("Esa tarea ya existe.");
+    }
+
+    else {
+        tareas.push(tarea);
+        guardar();
+        document.getElementById("nuevaTarea").value = "";
+        mensaje("Tarea agregada correctamente.");
+    }
+}
+
+// Ver tareas
+function verTareas() {
+    let lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    if (tareas.length == 0) {
+        lista.innerHTML = "<li>No tienes tareas registradas.</li>";
+    }
+
+    else {
+        for (let i = 0; i < tareas.length; i++) {
+            let elemento = document.createElement("li");
+            elemento.textContent = (i + 1) + ". " + tareas[i];
+            lista.appendChild(elemento);
+        }
+    }
+}
+
+// Eliminar tarea
+function eliminar() {
+    let tarea = document.getElementById("borrarTarea").value.trim();
+
+    let posicion = tareas.findIndex(
+        t => t.toLowerCase() == tarea.toLowerCase()
+    );
+
+    if (tarea == "") {
+        mensaje("Escribe el nombre de una tarea.");
+    }
+
+    else if (posicion != -1) {
+        tareas.splice(posicion, 1);
+        guardar();
+        document.getElementById("borrarTarea").value = "";
+        mensaje("Tarea eliminada correctamente.");
+    }
+
+    else {
+        mensaje("Esa tarea no existe.");
+    }
+}
+
+// Mostrar mensajes
+function mensaje(texto) {
+    document.getElementById("mensaje").textContent = texto;
+}
+
+</script>
+
+</body>
+</html>
